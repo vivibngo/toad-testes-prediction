@@ -1,7 +1,7 @@
 ---
 title: "Math 437 - Midterm Exam 1"
 author: "Vivi B. Ngo"
-date: "Due March 8, 2022 at 11:59 PM"
+date: "Due March 8, 2021 at 11:59 PM"
 output: html_document
 ---
 
@@ -384,10 +384,3 @@ model4 <- lm(BV~BSL+Specs+PL)
 summary(model4)
 ```
 
-
-
-# Oral Exam (10 points)
-
-Sign up on Canvas for a 15-minute window in which we will talk for about 10 minutes about your exam solutions.
-
-You will receive 5 points for showing up and up to 5 points of extra credit based on the clarity of your explanations.
