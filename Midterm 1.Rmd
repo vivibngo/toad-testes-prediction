@@ -1,0 +1,393 @@
+---
+title: "Math 437 - Midterm Exam 1"
+author: "Vivi B. Ngo"
+date: "Due March 8, 2022 at 11:59 PM"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries and data, message = FALSE, warning = FALSE}
+# Packages you definitely need
+library(ggplot2)
+library(dplyr)
+
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+# Please load any other packages you need either all in this chunk
+# or in the chunk you need it for
+
+# Data you need for applied problems
+toad_testes <- readr::read_csv("toad_testes.csv")
+cats <- readr::read_csv("cats.csv")
+```
+
+This exam is worth a total of **105** points, but is graded out of **100** points.
+
+# Conceptual Problem (12 pts total)
+
+Classify each statement below as *always true*, *sometimes true*, or *always false*. Write a sentence or two explaining your decision.
+
+## Part a (Explanation: 2 pts)
+
+In hypothesis testing (significance testing) using Fisher's framework, the p-value represents the posterior probability that the null hypothesis is true, conditional on the data that was observed.
+
+Always false, the definition of the Bayesian approach has a posterior alpha with likelihood of x happening prior . 
+
+## Part b (Explanation: 2 pts)
+
+We can test $H_0: \mu_1 - \mu_2 = 3$ using a permutation-based two-sample t-test.
+
+Always false, a permutation-based two-sample t-test compares two groups to see if the treatment has any effect.  
+
+## Part c (Explanation: 2 pts)
+
+If we control the family-wise error rate at $\alpha = 0.05$, and all of our null hypotheses are true, then there is at least a 95% chance that we make no Type I Errors.
+
+Always true, if we set our significant level $\alpha \approx 0 $, we will never make a Type 1 Error
+
+## Part d (Explanation: 2 pts)
+
+Since Tukey's method is more powerful than Bonferroni's method, we should use Tukey's method to control the family-wise error rate instead of Bonferroni's method.
+
+Sometimes true, although Tukey's method is more powerful, it only works when group have equal sample sizes. 
+
+## Part e (Explanation: 2 pts)
+
+In the long run, 95% of all 95% bootstrap percentile confidence intervals for a population mean will contain the true value of the population mean.
+
+Sometimes true, 95% confidence interval is a range of values that you can be 95% certain contains the true mean of the population, this is not the same as a range that contains 95% of the values.
+
+## Part f (Explanation: 2 pts)
+
+In a multiple linear regression model, if a predictor has a variance inflation factor (VIF) near 1, then the predictor is not significantly related to the response variable.
+
+Always true, VIF ranges from 1 upwards, the numerical value for VIF tells you the variance for each coefficient, if a predictor has a VIF near 1 then the predictor is not correlated. 
+
+# Simulation Problem (18 points total)
+
+Consider the following simulation.
+
+```{r simulation 1}
+set.seed(1022)
+x <- matrix(rnorm(25000, mean = 1, sd = 0.5), nrow = 1000, ncol = 25)
+epsilon <- rnorm(1000)
+Y <- 10 + 2*x[,1] - 0.5*x[,2] + 0.25*x[,3] - 0.2*x[,4] + 0.3*x[,5] + epsilon
+
+lr.df <- data.frame(Y, x) # create a data frame with response Y and predictors x, 
+
+lm1 <- lm(Y ~ ., data = lr.df)
+
+```
+
+## Part a (Explanation: 5 points)
+
+In your own words, explain what is going on in this simulation: what does each line of code do? It may help to know that the `Y ~ .` syntax means "Y predicted by all other variables in the data frame."
+
+Line 72: we set.seed to randomly generate and store our results to reproduce it. 
+Line 73: We created a 1000 by 25 matrix with 25,000 random normal data with mean = 1 and sd = 0.5.
+Line 74: We declared a variable epsilon with 1000 random normal data
+Line 75: We declared a variable Y to make a response Y with given formula
+Line 77: We declared a variable lr.df and created a data frame with response Y and predictors x
+Line 79: We declared a variable lm1 to and assigned a linear model that uses the response Y, predictors, and lr.df data 
+
+## Part b (Code: 2 pts; Explanation: 1 pt)
+
+Store the p-values for the t-tests for the coefficients in the `lm1` model, rounded to 3 decimal places (the function `round` looks appropriate here), in a variable `lm1_pvalues`. Recall that the p-values for these t-tests are equivalent to the p-values for the partial ANOVA tests for testing the `lm1` model against the `lm1` model with that variable removed, but are much more easily obtained in R (you can use `summary(lm1)$coefficients` to output the entire coefficients estimate matrix).
+
+```{r}
+lm1_pvalues <-round(summary(lm1)$coefficients[2:26,4], digits = 3)
+
+lm1_pvalues
+
+```
+
+
+Print your `lm1_pvalues` vector. At the 5% significance level, which variables are significant predictors of the response `Y` (i.e., which predictor variables have slopes significantly different from 0 in the model)?
+
+$x_1,x_2,x_3,x_4,x_5,x_{16},x_{22}$ are significant predictors of the response $Y$.
+
+```{r}
+lm1_pvalues <-round(summary(lm1)$coefficients[2:26,4], digits = 3) <= 0.05
+
+lm1_pvalues
+
+```
+
+## Part c (Code: 4 pts; Explanation: 2 pts)
+
+Create 25 simple linear regression models relating `Y` to each predictor variable (i.e., each column of `x`). For each model, obtain the p-value for the t-test testing $H_0: \beta_1 = 0$ against $H_a: \beta_1 \neq 0$. 
+
+Full credit will be given for code that does not brute-force its way into this (i.e., don't write 25 lines of code with an `lm` in each line unless that's literally the only way you can think of to do this). It may help to know that `data` is an *optional* argument to `lm`, so if the variables in your `formula` argument are in your Environment, R will run `lm` just fine without a `data` argument.
+
+
+```{r}
+
+stored_pvalues <- numeric(25)
+
+for (i in 1:25) {
+  
+  lm_chunk <- lm(Y~lr.df[,i+1])
+  stored_pvalues[i] = summary(lm_chunk)$coefficient[2,4]
+  
+}
+
+
+```
+
+
+Adjust the p-values using Holm's step-down method. Controlling the family-wise error rate at $\alpha = 0.10$, how many Type I Errors did you commit? How many Type II Errors did you commit?
+
+Type 1 errors: 2
+Type 2 error: 0
+
+```{r}
+p.adjusted = p.adjust(stored_pvalues, method = "holm") 
+alpha = 0.10
+m=26
+sig.lvl = (alpha)/(m-(1:25))
+rejects = p.adjusted <= sig.lvl
+
+total <- data.frame(p.adjusted, rejects)
+```
+
+
+## Part d (Code: 1 pt; Explanation: 3 pts)
+
+Adjust the p-values from part (c) using the Benjamini-Hochberg method. Controlling the false discovery rate at $q = 0.20$, how many Type I Errors did you commit? How many Type II Errors did you commit? Compare your results to those from part (c). Are you surprised by the comparison? Should you be surprised?
+
+Type I Error (False when suppose to be True) : 2
+Type II Error (False and Actually False): 0 
+
+```{r}
+
+bh.adjusted = p.adjust(stored_pvalues, method = "BH") 
+q = 0.20
+m=25
+sig.lvl = q*(1:25)/m
+rejects = bh.adjusted <= sig.lvl
+
+total <- data.frame(bh.adjusted, rejects)
+
+
+```
+
+
+# Applied Problem 1 (24 points total)
+
+[Friesen and Shine (2019)](https://royalsocietypublishing.org/doi/pdf/10.1098/rsbl.2019.0339) hypothesized that within a species, individuals at the boundary of its range experience different ecological pressures than individuals at the center of its range. One specific hypothesis they had was that males at the boundary should have smaller testes.
+
+The *toad_testes* file contains the following variables they recorded on 214 Australian cane toads:
+
+* region: the region in which the toad was collected, either **CORE** (center of the range), **W-FRONT** (western boundary of the range), or **S-FRONT** (southern boundary of the range)
+* total_mass: the total mass of the left and right testis, in mg
+
+## Part a (Code: 4 pts; Explanation: 4 pts)
+
+Produce an appropriate graph and an appropriate grouped numerical summary for this data. Using this graph and summary, explain why a one-way ANOVA would *not* be appropriate for analyzing this data. Would a permutation-based F test be appropriate to analyze this data?
+
+
+Looking at the plots generated, there are high outliers, permutation tests are not as susceptible to outliers, which is a more preforable test than the ANOVA test.The one-way ANOVA is less powerful when there are outliers. 
+```{r}
+mutated_testes <- toad_testes %>% mutate(
+  region2 = case_when(
+    region == "CORE"~"CORE",
+    TRUE ~ "Boundaries"
+  )
+)
+
+mutated_mass = mutated_testes$total_mass
+mutated_region2 = mutated_testes$region2
+
+plot(total_mass~as.factor(region2), data = mutated_testes, xlab = "Region", ylab = "Total Mass")
+
+summary(mutated_mass,mutated_region2 )
+
+```
+
+
+## Part b (Code: 3 pts; Explanation: 3 pts)
+
+It turns out that a log-transformation will at least "sort of" fix the problems you identified in part (a). Using the `log10` function, create a new variable, `log_mass`, containing the base 10 log of the testes mass.
+
+Using the `log_mass` variable, perform a one-way ANOVA to test $H_0:$ the population mean testes mass is the same in all three regions. Use the output to write a conclusion.
+
+Based on the summary, the log-transformation "sort of" fixes the outlier problem. 
+
+```{r}
+log_mass <- log10(toad_testes$total_mass)
+
+mass_aov <- summary(aov(log_mass~region, data = toad_testes))
+
+mass_aov2 <- summary(aov(total_mass~region, data = toad_testes))
+
+
+```
+
+
+
+## Part c (Code: 2 pts; Explanation: 3 pts)
+
+Recall that the original hypothesis was that toads at the boundary of the range should have smaller testes mass than toads at the center of the range. Use an appropriate test to determine whether they have sufficient evidence, at the $\alpha = 0.05$ significance level, to make this claim.
+
+We obtained a small p-value based on our test we can conclude that the results of this experiment is statistically significant at an $\alpha = 0.05$.
+There is significant evidence  to suggest that boundary toads has smaller testes than toads at the center of the range. 
+
+```{r}
+t.output <- t.test(total_mass~as.factor(region2), data = mutated_testes)
+t.output
+```
+
+
+## Part d (Code: 5 pts)
+
+Obtain a 99% confidence interval for the population mean of `testes_mass` for toads in the **CORE** region. Use any bootstrap method of your choice with 10,000 bootstrap replicates.
+
+```{r}
+
+set.seed(1337)
+n.data <- nrow(toad_testes)
+mass.mean <- mean(toad_testes$total_mass%>%filter(toad_testes$region==CORE))
+#mass.mean <- mean(toad_testes$total_mass)
+#mass.mean%>%filter(toad_testes$region==CORE)
+#[toad_testes$region==CORE]
+B <- 10000
+mass.boot <-numeric(B)
+
+for (i in 1:B) {
+  
+  resample = sample(toad_testes$total_mass, size = n.data, replace = TRUE)
+  
+  mass.boot[i]=mean(resample)
+  
+}
+
+C<-.99
+alpha = 1 - C
+mass.boot.pctile <-quantile(mass.boot, probs = c(alpha/2, 1 - alpha/2))
+mass.boot.pctile
+
+```
+
+# Applied Problem 2 (41 points total)
+
+The *cats* dataset on Canvas contains measurements on 101 cats performed by [Lesch and colleagues (2022)](https://royalsocietypublishing.org/doi/10.1098/rsos.210477). The variables in this dataset are:
+
+* ID: the National Museum of Scotland ID for the cat
+* Species: the species to which the cat belonged: *catus* (domestic cat), *silvestris* (European wildcat), *lybica* (African wildcat), or a *hybrid* of domestic and wild cats
+* BrainVolume: the volume of the cat's brain, in grams
+* PalateLength: the length of the palate (mouth/snout), in mm
+* BasalSkullLength: the length of the skull, in mm
+
+## Part a (Code: 8 points; Explanation: 12 points)
+
+Perform an exploratory data analysis on this dataset. In particular, you should answer the following questions:
+
+* How much data is missing?
+We have 5 N/A data points.
+
+* What is the distribution of each (non-ID) variable in the dataset? (For numerical variables: consider describing the distribution in terms of center, variability, shape, and outliers)
+
+BV seems linear and normal, 
+
+* Do any of the variables appear to be related?
+
+Yes the variables do appear to be related, the variables have a linear relationship with each other
+
+* Are there "hidden" relationships between the numerical variables that only show up when you look at each species separately (i.e., using different colors/shapes to differentiate the species)? If so, what do you see?
+
+```{r}
+
+
+BV = cats$BrainVolume
+PL = cats$PalateLength
+BSL = cats$BasalSkullLength
+Specs = cats$Species
+
+pairs(~BV+PL+BSL)
+
+summary(cats)
+
+
+boxplot(BV,PL)
+boxplot(BSL,PL)
+boxplot(BV,BSL)
+
+catdata <- data.frame(BV,PL,BSL,Specs)
+sum(is.na(catadata))
+
+
+
+```
+
+
+## Part b (Code: 2 pts; Explanation: 4 pts)
+
+Fit a model predicting brain volume from basal skull length and species, and obtain the coefficient estimates. Write a sentence interpreting the slope corresponding to `BasalSkullLength` in the least-squares model. Also, write a sentence interpreting the slope corresponding to `Speciessilvestris`.
+
+We can see as BasallSkullLength increases, the BrainVolume increases, therefore cats that are `Speciessilvestris` have larger BrainVolume compared to other species. 
+
+```{r}
+model1 <- lm(BV~BSL+Specs, data=cats)
+summary(model1)
+
+```
+
+
+## Part c (Code: 2 pts; Explanation: 2 pts)
+
+Fit a model predicting brain volume from basal skull length, species, and the interaction between the two variables. Use the coefficient estimates to write out four simple linear regression equations predicting brain volume from basal skull length (one for each species). Round the coefficients in each equation to a reasonable number of decimal places.
+
+```{r}
+model2 <- lm(BV~BSL+Specs+BSL*Specs, data=cats)
+summary(model2)
+```
+
+
+hybrid: y = -1.738 + 0.667*BSL
+lybica: y = 3.221 + 0.546*BSL
+silvestris: y = 231.635+.5*BSL
+catus: y = 8.613 + 0.420*BSL
+
+## Part d (Code: 2 pts; Explanation: 3 pts)
+
+Would you prefer to use the model with or without the interaction term to explain the relationship between species, basal skull length, and brain volume? Perform an appropriate hypothesis test in R to support your reasoning.
+
+I would prefer to use the linear model with the interaction term, performing an AOV test with $H_0 = \mu_1=\mu_2=\mu_3$, the summary shows there a very strong correlation between the three variables. 
+
+
+```{r}
+summary(aov(BSL~as.factor(Specs)))
+summary(aov(BV~BSL))
+summary(aov(BV~as.factor(Specs)))
+```
+
+
+## Part e (Code: 2 pts; Explanation: 4 pts)
+
+Fit a model predicting brain volume from palate length. Then, fit a multiple linear regression model predicting brain volume from basal skull length, species, and palate length. Obtain the $R^2$ values for both models as well as the model (from part b) predicting brain volume from basal length and species.
+
+Provide a satisfying explanation for the following paradox: despite it having a reasonably strong relationship with brain volume on its own, when we add palate length to a model including basal skull length and species, the $R^2$ value for the new model increases almost imperceptibly.
+
+model 1 $R^2$ is 0.796, model 3 $R^2$ 0.5275, model 4 is  0.796. Our hypothesis test above showed us there is a correlation between the three variables, the paradox could be that PalateLength does not add any emphasis on our model, yet at the same time it does. model 1 has the same $R^2$ as model 4. 
+```{r}
+model1
+summary(model1)
+
+model3 <- lm(BV~PL)
+summary(model3)
+
+model4 <- lm(BV~BSL+Specs+PL)
+summary(model4)
+```
+
+
+
+# Oral Exam (10 points)
+
+Sign up on Canvas for a 15-minute window in which we will talk for about 10 minutes about your exam solutions.
+
+You will receive 5 points for showing up and up to 5 points of extra credit based on the clarity of your explanations.
