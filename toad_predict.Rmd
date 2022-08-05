@@ -1,7 +1,6 @@
 ---
 title: "Math 437 - Midterm Exam 1"
 author: "Vivi B. Ngo"
-date: "Due March 8, 2021 at 11:59 PM"
 output: html_document
 ---
 
@@ -25,49 +24,47 @@ toad_testes <- readr::read_csv("toad_testes.csv")
 cats <- readr::read_csv("cats.csv")
 ```
 
-This exam is worth a total of **105** points, but is graded out of **100** points.
 
-# Conceptual Problem (12 pts total)
 
-Classify each statement below as *always true*, *sometimes true*, or *always false*. Write a sentence or two explaining your decision.
+# Conceptual Problem
 
-## Part a (Explanation: 2 pts)
+## Part a 
 
 In hypothesis testing (significance testing) using Fisher's framework, the p-value represents the posterior probability that the null hypothesis is true, conditional on the data that was observed.
 
 Always false, the definition of the Bayesian approach has a posterior alpha with likelihood of x happening prior . 
 
-## Part b (Explanation: 2 pts)
+## Part b 
 
 We can test $H_0: \mu_1 - \mu_2 = 3$ using a permutation-based two-sample t-test.
 
 Always false, a permutation-based two-sample t-test compares two groups to see if the treatment has any effect.  
 
-## Part c (Explanation: 2 pts)
+## Part c 
 
 If we control the family-wise error rate at $\alpha = 0.05$, and all of our null hypotheses are true, then there is at least a 95% chance that we make no Type I Errors.
 
 Always true, if we set our significant level $\alpha \approx 0 $, we will never make a Type 1 Error
 
-## Part d (Explanation: 2 pts)
+## Part d
 
 Since Tukey's method is more powerful than Bonferroni's method, we should use Tukey's method to control the family-wise error rate instead of Bonferroni's method.
 
 Sometimes true, although Tukey's method is more powerful, it only works when group have equal sample sizes. 
 
-## Part e (Explanation: 2 pts)
+## Part e 
 
 In the long run, 95% of all 95% bootstrap percentile confidence intervals for a population mean will contain the true value of the population mean.
 
 Sometimes true, 95% confidence interval is a range of values that you can be 95% certain contains the true mean of the population, this is not the same as a range that contains 95% of the values.
 
-## Part f (Explanation: 2 pts)
+## Part f 
 
 In a multiple linear regression model, if a predictor has a variance inflation factor (VIF) near 1, then the predictor is not significantly related to the response variable.
 
 Always true, VIF ranges from 1 upwards, the numerical value for VIF tells you the variance for each coefficient, if a predictor has a VIF near 1 then the predictor is not correlated. 
 
-# Simulation Problem (18 points total)
+# Simulation Problem 
 
 Consider the following simulation.
 
@@ -83,9 +80,8 @@ lm1 <- lm(Y ~ ., data = lr.df)
 
 ```
 
-## Part a (Explanation: 5 points)
+## Part a 
 
-In your own words, explain what is going on in this simulation: what does each line of code do? It may help to know that the `Y ~ .` syntax means "Y predicted by all other variables in the data frame."
 
 Line 72: we set.seed to randomly generate and store our results to reproduce it. 
 Line 73: We created a 1000 by 25 matrix with 25,000 random normal data with mean = 1 and sd = 0.5.
@@ -94,7 +90,7 @@ Line 75: We declared a variable Y to make a response Y with given formula
 Line 77: We declared a variable lr.df and created a data frame with response Y and predictors x
 Line 79: We declared a variable lm1 to and assigned a linear model that uses the response Y, predictors, and lr.df data 
 
-## Part b (Code: 2 pts; Explanation: 1 pt)
+## Part b 
 
 Store the p-values for the t-tests for the coefficients in the `lm1` model, rounded to 3 decimal places (the function `round` looks appropriate here), in a variable `lm1_pvalues`. Recall that the p-values for these t-tests are equivalent to the p-values for the partial ANOVA tests for testing the `lm1` model against the `lm1` model with that variable removed, but are much more easily obtained in R (you can use `summary(lm1)$coefficients` to output the entire coefficients estimate matrix).
 
@@ -117,11 +113,8 @@ lm1_pvalues
 
 ```
 
-## Part c (Code: 4 pts; Explanation: 2 pts)
+## Part c 
 
-Create 25 simple linear regression models relating `Y` to each predictor variable (i.e., each column of `x`). For each model, obtain the p-value for the t-test testing $H_0: \beta_1 = 0$ against $H_a: \beta_1 \neq 0$. 
-
-Full credit will be given for code that does not brute-force its way into this (i.e., don't write 25 lines of code with an `lm` in each line unless that's literally the only way you can think of to do this). It may help to know that `data` is an *optional* argument to `lm`, so if the variables in your `formula` argument are in your Environment, R will run `lm` just fine without a `data` argument.
 
 
 ```{r}
@@ -139,7 +132,7 @@ for (i in 1:25) {
 ```
 
 
-Adjust the p-values using Holm's step-down method. Controlling the family-wise error rate at $\alpha = 0.10$, how many Type I Errors did you commit? How many Type II Errors did you commit?
+Adjust the p-values using Holm's step-down method. Controlling the family-wise error rate at $\alpha = 0.10$
 
 Type 1 errors: 2
 Type 2 error: 0
@@ -155,9 +148,9 @@ total <- data.frame(p.adjusted, rejects)
 ```
 
 
-## Part d (Code: 1 pt; Explanation: 3 pts)
+## Part d 
 
-Adjust the p-values from part (c) using the Benjamini-Hochberg method. Controlling the false discovery rate at $q = 0.20$, how many Type I Errors did you commit? How many Type II Errors did you commit? Compare your results to those from part (c). Are you surprised by the comparison? Should you be surprised?
+
 
 Type I Error (False when suppose to be True) : 2
 Type II Error (False and Actually False): 0 
@@ -176,7 +169,7 @@ total <- data.frame(bh.adjusted, rejects)
 ```
 
 
-# Applied Problem 1 (24 points total)
+# Applied Problem 1 
 
 [Friesen and Shine (2019)](https://royalsocietypublishing.org/doi/pdf/10.1098/rsbl.2019.0339) hypothesized that within a species, individuals at the boundary of its range experience different ecological pressures than individuals at the center of its range. One specific hypothesis they had was that males at the boundary should have smaller testes.
 
@@ -185,7 +178,7 @@ The *toad_testes* file contains the following variables they recorded on 214 Aus
 * region: the region in which the toad was collected, either **CORE** (center of the range), **W-FRONT** (western boundary of the range), or **S-FRONT** (southern boundary of the range)
 * total_mass: the total mass of the left and right testis, in mg
 
-## Part a (Code: 4 pts; Explanation: 4 pts)
+## Part a
 
 Produce an appropriate graph and an appropriate grouped numerical summary for this data. Using this graph and summary, explain why a one-way ANOVA would *not* be appropriate for analyzing this data. Would a permutation-based F test be appropriate to analyze this data?
 
@@ -209,8 +202,7 @@ summary(mutated_mass,mutated_region2 )
 ```
 
 
-## Part b (Code: 3 pts; Explanation: 3 pts)
-
+## Part b
 It turns out that a log-transformation will at least "sort of" fix the problems you identified in part (a). Using the `log10` function, create a new variable, `log_mass`, containing the base 10 log of the testes mass.
 
 Using the `log_mass` variable, perform a one-way ANOVA to test $H_0:$ the population mean testes mass is the same in all three regions. Use the output to write a conclusion.
@@ -229,7 +221,7 @@ mass_aov2 <- summary(aov(total_mass~region, data = toad_testes))
 
 
 
-## Part c (Code: 2 pts; Explanation: 3 pts)
+## Part c 
 
 Recall that the original hypothesis was that toads at the boundary of the range should have smaller testes mass than toads at the center of the range. Use an appropriate test to determine whether they have sufficient evidence, at the $\alpha = 0.05$ significance level, to make this claim.
 
@@ -242,7 +234,7 @@ t.output
 ```
 
 
-## Part d (Code: 5 pts)
+## Part d 
 
 Obtain a 99% confidence interval for the population mean of `testes_mass` for toads in the **CORE** region. Use any bootstrap method of your choice with 10,000 bootstrap replicates.
 
@@ -272,7 +264,7 @@ mass.boot.pctile
 
 ```
 
-# Applied Problem 2 (41 points total)
+# Applied Problem 
 
 The *cats* dataset on Canvas contains measurements on 101 cats performed by [Lesch and colleagues (2022)](https://royalsocietypublishing.org/doi/10.1098/rsos.210477). The variables in this dataset are:
 
@@ -282,10 +274,7 @@ The *cats* dataset on Canvas contains measurements on 101 cats performed by [Les
 * PalateLength: the length of the palate (mouth/snout), in mm
 * BasalSkullLength: the length of the skull, in mm
 
-## Part a (Code: 8 points; Explanation: 12 points)
-
-Perform an exploratory data analysis on this dataset. In particular, you should answer the following questions:
-
+## Part a 
 * How much data is missing?
 We have 5 N/A data points.
 
@@ -324,9 +313,7 @@ sum(is.na(catadata))
 ```
 
 
-## Part b (Code: 2 pts; Explanation: 4 pts)
-
-Fit a model predicting brain volume from basal skull length and species, and obtain the coefficient estimates. Write a sentence interpreting the slope corresponding to `BasalSkullLength` in the least-squares model. Also, write a sentence interpreting the slope corresponding to `Speciessilvestris`.
+## Part b 
 
 We can see as BasallSkullLength increases, the BrainVolume increases, therefore cats that are `Speciessilvestris` have larger BrainVolume compared to other species. 
 
@@ -352,9 +339,6 @@ lybica: y = 3.221 + 0.546*BSL
 silvestris: y = 231.635+.5*BSL
 catus: y = 8.613 + 0.420*BSL
 
-## Part d (Code: 2 pts; Explanation: 3 pts)
-
-Would you prefer to use the model with or without the interaction term to explain the relationship between species, basal skull length, and brain volume? Perform an appropriate hypothesis test in R to support your reasoning.
 
 I would prefer to use the linear model with the interaction term, performing an AOV test with $H_0 = \mu_1=\mu_2=\mu_3$, the summary shows there a very strong correlation between the three variables. 
 
@@ -366,12 +350,7 @@ summary(aov(BV~as.factor(Specs)))
 ```
 
 
-## Part e (Code: 2 pts; Explanation: 4 pts)
-
-Fit a model predicting brain volume from palate length. Then, fit a multiple linear regression model predicting brain volume from basal skull length, species, and palate length. Obtain the $R^2$ values for both models as well as the model (from part b) predicting brain volume from basal length and species.
-
-Provide a satisfying explanation for the following paradox: despite it having a reasonably strong relationship with brain volume on its own, when we add palate length to a model including basal skull length and species, the $R^2$ value for the new model increases almost imperceptibly.
-
+## Part e 
 model 1 $R^2$ is 0.796, model 3 $R^2$ 0.5275, model 4 is  0.796. Our hypothesis test above showed us there is a correlation between the three variables, the paradox could be that PalateLength does not add any emphasis on our model, yet at the same time it does. model 1 has the same $R^2$ as model 4. 
 ```{r}
 model1
